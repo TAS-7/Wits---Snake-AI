@@ -1,1 +1,1 @@
-# Wits---Snake-AI
+# Wits-Snake-AI
