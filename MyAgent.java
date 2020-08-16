@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-
+import java.util.Random;
 
 import za.ac.wits.snake.DevelopmentAgent;
 
@@ -45,31 +45,66 @@ public class MyAgent extends DevelopmentAgent {
 		}
 
 	}
+	//BFS
 	public static Point nextMove(ArrayList<Point> validMoves, Point apple, Point prev,int timer) {
 		Point minPoint = new Point(0,0);
 		Point maxPoint = new Point(0,0);
-		minPoint.setDistance(-1);
-		maxPoint.setDistance(-1);
 		for (int i=0; i<validMoves.size(); i++) {
-			if (minPoint.getDistance() == -1 && minPoint.getDistance()==-1) {
+			if (minPoint.getDistance() == 0 && minPoint.getDistance()== 0) {
 				minPoint =validMoves.get(i);
 				maxPoint =validMoves.get(i);
 				
 			}
-			else if(minPoint.getDistance() != -1 &&minPoint.getDistance() >= validMoves.get(i).getDistance()) {
+			else if(minPoint.getDistance() != 0 &&minPoint.getDistance() >validMoves.get(i).getDistance()) {
 				minPoint=validMoves.get(i);
 			}
-			else if(maxPoint.getDistance() != -1 &&maxPoint.getDistance() < validMoves.get(i).getDistance()) {
+			else if(maxPoint.getDistance() != 0 &&maxPoint.getDistance() < validMoves.get(i).getDistance()) {
 				maxPoint=validMoves.get(i);
 			}
 		}
 		
-		if (isAppleFresh(apple, prev, timer)== true) {
-			return minPoint;
+		return minPoint;
+		
+	}
+	public static Point DFS(ArrayList<Point> validMoves, Point apple, Point prev,int timer) {
+		Point minPoint = new Point(0,0);
+		Point maxPoint = new Point(0,0);
+		for (int i=0; i<validMoves.size(); i++) {
+			if (minPoint.getDistance() == 0 && minPoint.getDistance()== 0) {
+				minPoint =validMoves.get(i);
+				maxPoint =validMoves.get(i);
+				
+			}
+			else if(minPoint.getDistance() != 0 &&minPoint.getDistance() >validMoves.get(i).getDistance()) {
+				minPoint=validMoves.get(i);
+			}
+			else if(maxPoint.getDistance() != 0 &&maxPoint.getDistance() < validMoves.get(i).getDistance()) {
+				maxPoint=validMoves.get(i);
+			}
 		}
-		else {
-			return maxPoint;
+		
+		return maxPoint;
+		
+	}
+	
+	public static Point safeNextMove(ArrayList<Point> validMoves) {
+		Point minPoint = new Point(0,0);
+		Point maxPoint = new Point(0,0);
+		for (int i=0; i<validMoves.size(); i++) {
+			if (minPoint.getDanger() == 0 && minPoint.getDanger()==0) {
+				minPoint =validMoves.get(i);
+				maxPoint =validMoves.get(i);
+				
+			}
+			else if(minPoint.getDanger() != 0 &&minPoint.getDanger()> validMoves.get(i).getDanger()) {
+				minPoint=validMoves.get(i); 
+			}
+			else if(maxPoint.getDanger() != 0 &&maxPoint.getDanger() < validMoves.get(i).getDanger()) {
+				maxPoint=validMoves.get(i);
+			}
 		}
+		return minPoint;
+		
 		
 	}
 
@@ -164,16 +199,16 @@ public class MyAgent extends DevelopmentAgent {
 				// do stuff with apples
 
 				int headX=0, headY=0;
-				
+				Point head =new Point(-1,-1);
 				int mySnakeNum = Integer.parseInt(br.readLine());
 				for (int i = 0; i < nSnakes; i++) {
 					String snakeLine = br.readLine();
-					drawSnake(snakeLine, 5, playArea);
+					drawSnake(snakeLine, 1, playArea);
 					if (i == mySnakeNum) {
 						// hey! That's me :)
-						drawSnake(snakeLine, 1, playArea);
+						drawSnake(snakeLine, 5, playArea);
 						String[] desc = snakeLine.split(" ");
-						Point head = createPoint(desc[3]);
+						head = createPoint(desc[3]);
 						headX = head.getX();
 						headY = head.getY();
 						
@@ -186,6 +221,7 @@ public class MyAgent extends DevelopmentAgent {
 				
 				// up
 				Point north = new Point (headX, headY-1);
+				north.setDanger(playArea);
 				if(isMoveValid(north,playArea)) {
 					validMoves.add(north);
 					north.manhattanDistance(Apple);
@@ -193,35 +229,52 @@ public class MyAgent extends DevelopmentAgent {
 				}
 				//down
 				Point south = new Point (headX, headY+1);
+				south.setDanger(playArea);
 				if(isMoveValid(south,playArea)) {
 					validMoves.add(south);
 					south.manhattanDistance(Apple);
 				}
 				//left
 				Point east = new Point (headX+1, headY);
+				east.setDanger(playArea);
 				if(isMoveValid(east,playArea)) {
 					validMoves.add(east);
 					east.manhattanDistance(Apple);
 				}
 				//right
 				Point west = new Point (headX-1, headY);
+				west.setDanger(playArea);
 				if(isMoveValid(west,playArea)) {
 					validMoves.add(west);
 					west.manhattanDistance(Apple);
 				}
-
-				Point tempPoint = nextMove(validMoves, Apple,prev,timer);
+				
+				Point tempPoint =new Point(-1,-1);
+				head.manhattanDistance(Apple);
+				double distance =head.getDistance() ;
+                if(distance <25) {
+                	tempPoint =nextMove(validMoves, Apple,prev,timer);
+                }
+                else {
+                	if(distance >=25 && distance < 75) {
+                		tempPoint =safeNextMove(validMoves);
+                	}
+                	else {
+                		tempPoint =DFS(validMoves, Apple,prev,timer);
+                	}
+                }
 				int move =2;
 				if (tempPoint == north) {
 					move = 0;
-				}
-				else if (tempPoint == south) {
-					move = 1;
 				}
 				else if (tempPoint == east) {
 					move = 3;
 					
 				}
+				else if (tempPoint == south) {
+					move = 1;
+				}
+				
 				else if (tempPoint == west) {
 					move = 2;
 				}

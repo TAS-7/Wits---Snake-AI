@@ -2,7 +2,9 @@
 public class Point {
 	int x;
 	int y;
-	double distance;
+	double distance = 0;
+	
+	int danger=0;
 	
 	
 	public void manhattanDistance(Point A) {
@@ -14,6 +16,7 @@ public class Point {
 		this.y = y;
 		
 	}
+	
 	public  int getX () {
 		return this.x;
 	}
@@ -25,6 +28,31 @@ public class Point {
 	}
 	public void setDistance(double d) {
 		this.distance =d ;
+	}
+	public int getDanger() {
+		return this.danger;
+	}
+	public void setDanger(int [][] playField) {
+		int number = 0;
+		int north = this.y-1;
+		int south = this.y+1;
+		int east = this.x-1;
+		int west = this.x+1;
+		if(north>=0 &&north<=49 && this.x>=0 &&this.x<=49) {
+			number = number + playField [north][this.x];
+		}
+		
+		if(south>=0 &&south<=49 && this.x>=0 &&this.x<=49) {
+			number = number + playField [south][this.x];
+		}
+		if(this.y>=0 &&this.y<=49 && west>=0 &&west<=49) {
+			number = number + playField [this.y][west];
+		}
+		if(this.y>=0 &&this.y<=49 && east>=0 &&east<=49) {
+			number = number + playField [this.y][east];
+		}
+		this.danger = number;
+		
 	}
 	
 }
