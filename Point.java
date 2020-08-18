@@ -3,7 +3,6 @@ public class Point {
 	int x;
 	int y;
 	double distance = 0;
-	
 	int danger=0;
 	
 	
