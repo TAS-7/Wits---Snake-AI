@@ -99,7 +99,7 @@ public class MyAgent extends DevelopmentAgent {
 			else if(minPoint.getDanger() != 0 &&minPoint.getDanger()> validMoves.get(i).getDanger()) {
 				minPoint=validMoves.get(i); 
 			}
-			else if(maxPoint.getDanger() != 0 &&maxPoint.getDanger() < validMoves.get(i).getDanger()) {
+			else if(maxPoint.getDanger() != 0 &&maxPoint.getDanger() <= validMoves.get(i).getDanger()) {
 				maxPoint=validMoves.get(i);
 			}
 		}
@@ -187,9 +187,9 @@ public class MyAgent extends DevelopmentAgent {
 					break;
 				}
 				int[][] playArea = new int[height][width];
-				drawObstacles(obstacleArray[0],8, playArea);
-				drawObstacles(obstacleArray[1],8, playArea);
-				drawObstacles(obstacleArray[2],8, playArea);
+				drawObstacles(obstacleArray[0],5, playArea);
+				drawObstacles(obstacleArray[1],5, playArea);
+				drawObstacles(obstacleArray[2],5, playArea);
 
 				String apple = line;
 				String[] appleArray = apple.split(" ");
@@ -203,10 +203,10 @@ public class MyAgent extends DevelopmentAgent {
 				int mySnakeNum = Integer.parseInt(br.readLine());
 				for (int i = 0; i < nSnakes; i++) {
 					String snakeLine = br.readLine();
-					drawSnake(snakeLine, 1, playArea);
+					drawSnake(snakeLine, 8, playArea);
 					if (i == mySnakeNum) {
 						// hey! That's me :)
-						drawSnake(snakeLine, 5, playArea);
+						drawSnake(snakeLine, 1, playArea);
 						String[] desc = snakeLine.split(" ");
 						head = createPoint(desc[3]);
 						headX = head.getX();
@@ -252,17 +252,16 @@ public class MyAgent extends DevelopmentAgent {
 				Point tempPoint =new Point(-1,-1);
 				head.manhattanDistance(Apple);
 				double distance =head.getDistance() ;
-                if(distance <25) {
-                	tempPoint =nextMove(validMoves, Apple,prev,timer);
-                }
-                else {
-                	if(distance >=25 && distance < 75) {
-                		tempPoint =safeNextMove(validMoves);
-                	}
-                	else {
-                		tempPoint =DFS(validMoves, Apple,prev,timer);
-                	}
-                }
+				if(distance <50) {
+					tempPoint =nextMove(validMoves, Apple,prev,timer);
+	            }
+	            ArrayList<Point> arr = new ArrayList<Point>();
+	            arr.add(DFS(validMoves, Apple,prev,timer));
+	            arr.add(safeNextMove(validMoves));
+	            if(distance >=50) {
+	            	tempPoint = arr.get(1);
+	            }
+	                	
 				int move =2;
 				if (tempPoint == north) {
 					move = 0;
