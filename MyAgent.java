@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import za.ac.wits.snake.DevelopmentAgent;
@@ -46,7 +47,7 @@ public class MyAgent extends DevelopmentAgent {
 
 	}
 	//BFS
-	public static Point nextMove(ArrayList<Point> validMoves, Point apple, Point prev,int timer) {
+	public static Point nextMove(ArrayList<Point> validMoves, Point apple, Point prev,int timer, int [] length, int myLength) {
 		Point minPoint = new Point(0,0);
 		Point maxPoint = new Point(0,0);
 		for (int i=0; i<validMoves.size(); i++) {
@@ -61,29 +62,26 @@ public class MyAgent extends DevelopmentAgent {
 			else if(maxPoint.getDistance() != 0 &&maxPoint.getDistance() < validMoves.get(i).getDistance()) {
 				maxPoint=validMoves.get(i);
 			}
-		}
+		}    
+		    
+		    if (myLength>=60 && minPoint.getDistance()>25) {
+		    	return maxPoint;
+		    }
+		    else {
+		    	return minPoint;
+		    }
 		
-		return minPoint;
+		
 		
 	}
 	public static Point DFS(ArrayList<Point> validMoves, Point apple, Point prev,int timer) {
 		Point minPoint = new Point(0,0);
 		Point maxPoint = new Point(0,0);
-		for (int i=0; i<validMoves.size(); i++) {
-			if (minPoint.getDistance() == 0 && minPoint.getDistance()== 0) {
-				minPoint =validMoves.get(i);
-				maxPoint =validMoves.get(i);
-				
-			}
-			else if(minPoint.getDistance() != 0 &&minPoint.getDistance() >validMoves.get(i).getDistance()) {
-				minPoint=validMoves.get(i);
-			}
-			else if(maxPoint.getDistance() != 0 &&maxPoint.getDistance() < validMoves.get(i).getDistance()) {
-				maxPoint=validMoves.get(i);
-			}
+		if(!validMoves.isEmpty()) {
+			return validMoves.get(0);
 		}
+		else { return minPoint;}
 		
-		return maxPoint;
 		
 	}
 	
@@ -200,15 +198,21 @@ public class MyAgent extends DevelopmentAgent {
 
 				int headX=0, headY=0;
 				Point head =new Point(-1,-1);
+				int [] length = new int[4];
+				int myLength = 0;
 				int mySnakeNum = Integer.parseInt(br.readLine());
 				for (int i = 0; i < nSnakes; i++) {
 					String snakeLine = br.readLine();
+					String [] desc = snakeLine.split(" ");
+					length [i] = Integer.parseInt(desc[1]);
 					drawSnake(snakeLine, 8, playArea);
 					if (i == mySnakeNum) {
 						// hey! That's me :)
+						length [i] = -1;
+						myLength =  Integer.parseInt(desc[1]);
 						drawSnake(snakeLine, 1, playArea);
-						String[] desc = snakeLine.split(" ");
-						head = createPoint(desc[3]);
+						String[] descs = snakeLine.split(" ");
+						head = createPoint(descs[3]);
 						headX = head.getX();
 						headY = head.getY();
 						
@@ -252,13 +256,33 @@ public class MyAgent extends DevelopmentAgent {
 				Point tempPoint =new Point(-1,-1);
 				head.manhattanDistance(Apple);
 				double distance =head.getDistance() ;
-				if(distance <50) {
-					tempPoint =nextMove(validMoves, Apple,prev,timer);
+				int counter =0;
+				for(int i=0; i<4; i++) {
+					if(myLength> length[i] && length[i] != -1) {
+						counter = counter + 1;
+					}
+				}
+				int sum = 0;
+				if(Apple.x-1>=0 && Apple.x<=49 && Apple.y>=0 && Apple.y<=49) {
+					sum = sum + playArea[Apple.y][Apple.x-1];
+				}
+				if(Apple.x+1<=49 && Apple.x>=0 && Apple.y>=0 && Apple.y<=49) {
+					sum = sum + playArea[Apple.y][Apple.x+1];
+				}
+				if(Apple.y-1>=0 && Apple.x<=49 && Apple.x>=0 && (Apple.y-1)<=49) {
+					sum = sum + playArea[Apple.y-1][Apple.x];
+				}
+				if(Apple.y+1>=0 && Apple.x<=49 && Apple.x>=0 && (Apple.y+1)<=49 ) {
+					sum = sum + playArea[Apple.y+1][Apple.x];
+				}
+				
+				if(distance<21 && sum <9) {
+					tempPoint =nextMove(validMoves, Apple,prev,timer, length, myLength);
 	            }
 	            ArrayList<Point> arr = new ArrayList<Point>();
 	            arr.add(DFS(validMoves, Apple,prev,timer));
 	            arr.add(safeNextMove(validMoves));
-	            if(distance >=50) {
+	            if(distance>=21) {
 	            	tempPoint = arr.get(1);
 	            }
 	                	
